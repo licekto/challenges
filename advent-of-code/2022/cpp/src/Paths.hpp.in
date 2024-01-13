@@ -1,0 +1,9 @@
+#pragma once
+
+#include <string_view>
+
+namespace Paths
+{
+static constexpr std::string_view projectRootDir = "@PROJECT_ROOT_DIR_DEF@";
+static constexpr std::string_view testDataDir = "@PROJECT_ROOT_DIR_DEF@/data/";
+}

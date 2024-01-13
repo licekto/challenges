@@ -1,0 +1,9 @@
+from .utility import *
+from advent_of_code.day_04 import *
+
+
+@pytest.mark.parametrize('file_path, expected_part1, expected_part2',
+                         [(['04', 'ref.in'], 13, 30),
+                          (['04', 'user.in'], 18519, 11787590)])
+def test_04(get_data, file_path, expected_part1, expected_part2):
+    assert(solve(get_data(file_path)) == (expected_part1, expected_part2))
