@@ -12,3 +12,4 @@ generated*
 **/*_pb2.py
 **/__pycache__/
 *.py[cod]
+*venv*

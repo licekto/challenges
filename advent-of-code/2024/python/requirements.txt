@@ -1,0 +1,9 @@
+graphviz
+iniconfig
+mpmath
+packaging
+pluggy
+pytest
+pytest-xdist
+sympy
+numpy
