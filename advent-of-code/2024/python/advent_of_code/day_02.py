@@ -18,6 +18,6 @@ def solve(lines):
         data = list(map(int, line.split()))
         is_ok = is_safe1(data)
         res1 = res1 + 1 if is_ok else res1
-        res2 = res2 + 1 if is_ok or is_safe2(data) else res2            
+        res2 = res2 + 1 if is_ok or is_safe2(data) else res2
 
     return res1, res2
