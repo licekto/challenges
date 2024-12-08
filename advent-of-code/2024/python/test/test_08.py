@@ -1,10 +1,10 @@
 from .utility import *
-from advent_of_code.day_06 import *
+from advent_of_code.day_08 import *
 
 
 @pytest.mark.parametrize('file_path, expected_part1, expected_part2',
-                     [(['06', 'ref.in'], 41, 6),
-#                      (['06', 'user.in'], 5531, 2165)
+                     [(['08', 'ref.in'], 14, 34),
+                      (['08', 'user.in'], 308, 1147)
                      ])
 def test_02(get_data, file_path, expected_part1, expected_part2):
     assert(solve(get_data(file_path)) == (expected_part1, expected_part2))
