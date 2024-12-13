@@ -1,5 +1,3 @@
-import numpy as np
-
 
 def solve(lines):
     left = []
