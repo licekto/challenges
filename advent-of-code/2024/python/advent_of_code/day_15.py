@@ -35,7 +35,7 @@ def move_ext_boxes(m, d, coord):
 
     c = m[ny1][nx1]
     if c == WALL:
-        return False
+        return
     x, y = coord
 
     if d[2] == '<' or d[2] == '>':
@@ -45,7 +45,7 @@ def move_ext_boxes(m, d, coord):
         nx2, ny2 = get_next((nx1, ny1), d)
         c = m[ny2][nx2]
         if c == WALL:
-            return False
+            return
         if c == B1 or c == B2:
             move_ext_boxes(m, d, (nx2, ny2))
 
@@ -54,31 +54,50 @@ def move_ext_boxes(m, d, coord):
             m[ny2][nx2] = m[ny1][nx1]
             m[ny1][nx1] = m[y][x]
             m[y][x] = EMPTY
-            return True
     else:
-        if m[ny1][nx1] == WALL:
-            return False
+        b1x, b1y = (x, y) if m[y][x] == '[' else (x - 1, y)
+        b2x, b2y = (x + 1, y) if m[y][x] == '[' else (x, y)
+
+        next_y = ny1
+
+        if m[next_y][b1x] == '[' and m[next_y][b2x] == ']':
+            move_ext_boxes(m, d, (b1x, next_y))
+        if m[next_y][b1x] == ']' and m[next_y][b2x] == '[':
+            if can_move(m, d, b1x, next_y) and can_move(m, d, b2x, next_y):
+                move_ext_boxes(m, d, (b1x, next_y))
+                move_ext_boxes(m, d, (b2x, next_y))
+        if m[next_y][b1x] == ']' and m[next_y][b2x] == EMPTY:
+            move_ext_boxes(m, d, (b1x, next_y))
+        if m[next_y][b1x] == EMPTY and m[next_y][b2x] == '[':
+            move_ext_boxes(m, d, (b2x, next_y))
+
 
         sx, sy = (nx1 + 1, ny1) if m[y][x] == '[' else (nx1 - 1, ny1)
-
-        if m[ny1][nx1] == '[' or m[ny1][nx1] == ']':
-
-            move_ext_boxes(m, d, (nx1, ny1))
-            if m[sy][sx] == '[' or m[sy][sx] == ']':
-                move_ext_boxes(m, d, (sx, sy))
-        elif m[sy][sx] == '[' or m[sy][sx] == ']':
-            move_ext_boxes(m, d, (sx, sy))
-
-        if m[ny1][nx1] == EMPTY and m[sy][sx] == EMPTY:
+        if m[next_y][b1x] == EMPTY and m[next_y][b2x] == EMPTY:
             sx1 = x + 1 if m[y][x] == '[' else x - 1
             m[ny1][nx1] = m[y][x]
             m[sy][sx] = m[y][sx1]
             m[y][x] = EMPTY
             m[y][sx1] = EMPTY
-            return True
 
-    return False
 
+def can_move(m, d, x, y):
+    nx, ny = get_next((x, y), d)
+    b1x, b1y = (x, y) if m[y][x] == '[' else (x - 1, y)
+    b2x, b2y = (x + 1, y) if m[y][x] == '[' else (x, y)
+
+    if m[ny][b1x] == EMPTY and m[ny][b2x] == EMPTY:
+        return True
+    if m[ny][b1x] == WALL or m[ny][b2x] == WALL:
+        return False
+    if m[ny][b1x] == '[' or m[ny][b2x] == ']':
+        return can_move(m, d, b1x, ny)
+    if m[ny][b1x] == ']' and m[ny][b2x] == '[':
+        return can_move(m, d, b1x, ny) and can_move(m, d, b2x, ny)
+    if m[ny][b1x] == ']' and m[ny][b2x] == EMPTY:
+        return can_move(m, d, b1x, ny)
+    if m[ny][b1x] == EMPTY and m[ny][b2x] == '[':
+        return can_move(m, d, b2x, ny)
 
 def get_result(m):
     cnt = 0
@@ -125,10 +144,6 @@ def extend_map(m):
 
 def solve(lines):
 
-    print()
-    res1 = 0
-    res2 = 0
-
     m = []
     rx, ry = 0, 0
 
@@ -141,15 +156,11 @@ def solve(lines):
         if pos != -1:
             rx, ry = pos, i
         i += 1
-    #print_map(m)
     em = extend_map(m)
 
     moves = []
     for li in range(i + 1, len(lines)):
         moves.extend(list(lines[li]))
-    #print(moves)
-
-    #print(f'start=[{rx}, {ry}]')
 
     for move in moves:
         d = DIRS[move]
@@ -167,8 +178,6 @@ def solve(lines):
 
     res1 = get_result(m)
 
-    #print_map(em)
-
     found = False
     for y in range(len(em)):
         for x in range(len(em[0])):
@@ -181,13 +190,10 @@ def solve(lines):
 
     for m in range(len(moves)):
         d = DIRS[moves[m]]
-        print(f'Move {d[2]}, n={m}:')
+
         nx, ny = get_next((rx, ry), d)
         c = em[ny][nx]
-        if m == 289:
-            print('aa')
         if c == WALL:
-            print_map(em)
             continue
         if c == B1 or c == B2:
             move_ext_boxes(em, d, (nx, ny))
@@ -195,17 +201,7 @@ def solve(lines):
             em[ny][nx] = ROBOT
             em[ry][rx] = EMPTY
             rx, ry = nx, ny
-        print_map(em)
 
-    print_map(em)
     res2 = get_result_ext(em)
 
-    # 1439676 too high
     return res1, res2
-
-
-def get_lines(file_path):
-    with open(file_path, 'r') as file:
-        return [line.strip() for line in file]
-
-solve(get_lines('user.in'))
