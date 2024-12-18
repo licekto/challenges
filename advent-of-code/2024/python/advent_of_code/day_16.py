@@ -1,4 +1,5 @@
 import heapq
+from collections import defaultdict
 
 WALL = '#'
 EMPTY = '.'
@@ -20,70 +21,64 @@ def get_next(coord, d):
 
 
 def dijkstra(m, start):
-
-    dist = {start: 0}
+    dist = defaultdict(lambda: 10**10)
     q = []
-    heapq.heappush(q, (0, start, DIRS['>']))
+    heapq.heappush(q, (0, start, DIRS['>'], [start]))
     min_score = 10**10
+
+    path = []
 
     while q:
         n = heapq.heappop(q)
         current_cost = n[0]
         x, y = n[1]
         current_dir = n[2]
+        cp = n[3]
 
         if m[y][x] == WALL:
             continue
-        if m[y][x] == 'E':
-            min_score = min(min_score, current_cost)
-            continue
+        if m[y][x] == 'E' and current_cost <= min_score:
+            min_score = current_cost
+            path += cp
 
         next_coord = get_next((x, y), current_dir)
         next_cost = current_cost + 1
-        if next_coord not in dist or dist[next_coord] > next_cost:
-            dist[next_coord] = next_cost
-            heapq.heappush(q, (next_cost, next_coord, current_dir))
+        if dist[next_coord, current_dir[2]] >= next_cost:
+            dist[next_coord, current_dir[2]] = next_cost
+            heapq.heappush(q, (next_cost, next_coord, current_dir, cp + [next_coord]))
 
         rot_dir = rot(current_dir)
         next_coord = get_next((x, y), rot_dir)
         next_cost = current_cost + 1 + 1000
-        if next_coord not in dist or dist[next_coord] > next_cost:
-            dist[next_coord] = next_cost
-            heapq.heappush(q, (next_cost, next_coord, rot_dir))
+        if dist[next_coord, rot_dir[2]] >= next_cost:
+            dist[next_coord, rot_dir[2]] = next_cost
+            heapq.heappush(q, (next_cost, next_coord, rot_dir, cp + [next_coord]))
 
         rot_dir = rot(rot_dir)
         next_coord = get_next((x, y), rot_dir)
         next_cost = current_cost + 1 + 2000
-        if next_coord not in dist or dist[next_coord] > next_cost:
-            dist[next_coord] = next_cost
-            heapq.heappush(q, (next_cost, next_coord, rot_dir))
+        if dist[next_coord, rot_dir[2]] >= next_cost:
+            dist[next_coord, rot_dir[2]] = next_cost
+            heapq.heappush(q, (next_cost, next_coord, rot_dir, cp + [next_coord]))
 
         rot_dir = rot_counter(current_dir)
         next_coord = get_next((x, y), rot_dir)
         next_cost = current_cost + 1 + 1000
-        if next_coord not in dist or dist[next_coord] > next_cost:
-            dist[next_coord] = next_cost
-            heapq.heappush(q, (next_cost, next_coord, rot_dir))
+        if dist[next_coord, rot_dir[2]] >= next_cost:
+            dist[next_coord, rot_dir[2]] = next_cost
+            heapq.heappush(q, (next_cost, next_coord, rot_dir, cp + [next_coord]))
 
-    return min_score
-
-def print_map(m):
-    for row in m:
-        print(''.join(row))
-    #print()
-
+    return min_score, len(set(path))
 
 def solve(lines):
-    res1, res2 = 0, 0
-
     m = [list(line) for line in lines]
 
-    x, y = 0, 0
+    sx, sy = 0, 0
     for i in range(len(lines)):
         pos = lines[i].find('S')
         if pos != -1:
-            x, y = pos, i
+            sx, sy = pos, i
 
-    res1 = dijkstra(m, (x, y))
+    res1, res2 = dijkstra(m, (sx, sy))
 
     return res1, res2
