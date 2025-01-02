@@ -9,6 +9,6 @@ from advent_of_code.day_15 import *
                       (['15', 'ref1.in'], 10092, 9021),
                       (['15', 'user.in'], 1406628, 1432781)
                      ])
-def test_02(get_data, file_path, expected_part1, expected_part2):
+def test_15(get_data, file_path, expected_part1, expected_part2):
     assert(solve(get_data(file_path)) == (expected_part1, expected_part2))
 

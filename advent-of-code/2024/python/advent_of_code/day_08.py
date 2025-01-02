@@ -46,9 +46,6 @@ def get_harmonics(m, a1, a2):
 
 
 def solve(lines):
-
-    res1 = 0
-    res2 = 0
     
     m = [list(line) for line in lines]
     antennas = get_antennas(m)

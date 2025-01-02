@@ -19,13 +19,13 @@ class Map:
                             d = i                   
                     return x, y, d
         return -1, -1, 0
-    
+
     def get_next(self, x, y, d):
         nexts = {'>': (0, 1), 'v': (1, 0), '<': (0, -1), '^': (-1, 0)}
         return x + nexts[DIRS[d]][1], y + nexts[DIRS[d]][0]
 
     def is_on_map(self, x, y):
-        return x >= 0 and x < len(self.__data[0]) and y >= 0 and y < len(self.__data)
+        return 0 <= x < len(self.__data[0]) and 0 <= y < len(self.__data)
 
     def at(self, x, y):
         return self.__data[y][x]
@@ -69,7 +69,6 @@ def is_loop(m, x, y, d, obstructions):
 
 def solve(lines):
 
-    res1 = 0
     res2 = 0
 
     m = Map(lines)
