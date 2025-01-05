@@ -1,3 +1,4 @@
+from collections import Counter
 
 def is_valid(m, p):
     y, x = p
@@ -36,47 +37,32 @@ def eval_map(m, start):
             break
 
 
-def print_map(m, s, e):
-    for y in range(len(m)):
-        for x in range(len(m[0])):
-            if (y, x) == s:
-                print('S', end='')
-            elif (y, x) == e:
-                print('E', end='')
-            else:
-                print(m[y][x], end='')
-        print()
+def manhattan(a, b):
+    return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
 
-def find_cheat(m, p):
-    y, x = p
-    cv = m[y][x]
-
+def find_cheat(m, s, n):
+    y, x = s
     cheats = []
-    for sy, sx in [(-1, 0), (0, 1), (1, 0), (0, -1)]:
-        ny, nx = y + sy, x + sx
-        v = m[ny][nx]
-        if v != '#':
-            continue
 
-        ny, nx = ny + sy, nx + sx
-        if not is_valid(m, (ny, nx)):
-            continue
-        v = m[ny][nx]
-        if type(v) is not int:
-            continue
-        if v < cv:
-            continue
-        cheats.append(v - cv - 2)
+    for iy in range(y - n, y + n + 1):
+        for ix in range(x - n, x + n + 1):
+            if not is_valid(m, (iy, ix)) or m[iy][ix] == '#':
+                continue
+            distance = manhattan(s, (iy, ix))
+            orig = m[iy][ix] - m[y][x]
+            if distance <= n and orig > 0 and orig - distance > 0:
+                cheats.append(orig - distance)
     return cheats
 
 
-def find_cheats(m, s, e):
+def find_cheats(m, s, e, n):
     y, x = s
 
     cheats = []
+
     while (y, x) != e:
-        cheats.extend(find_cheat(m, (y, x)))
+        cheats.extend(find_cheat(m, (y, x), n))
         for sy, sx in [(-1, 0), (0, 1), (1, 0), (0, -1)]:
             ny, nx = y + sy, x + sx
             c = m[y][x]
@@ -87,27 +73,14 @@ def find_cheats(m, s, e):
     return cheats
 
 
+def get_result(m, s, e, n):
+    cheats = find_cheats(m, s, e, n)
+    return sum([count if cheat >= 100 else 0 for cheat, count in Counter(cheats).items()])
+
+
 def solve(lines):
-    print()
-
     m = [list(line) for line in lines]
-
     s, e = get_start_end(m)
     eval_map(m, s)
 
-    cheats = find_cheats(m, s, e)
-    cheats.sort()
-    cheats_count = {x: cheats.count(x) for x in set(cheats)}
-    '''
-    print(cheats_count)
-    print(sum(cheats_count.values()))
-
-    for key, value in sorted(cheats_count.items(), key=lambda x: x[0]):
-        print("{} : {}".format(key, value))
-    '''
-    res1 = 0
-    for cheat, count in cheats_count.items():
-        if cheat >= 100:
-            res1 += count
-
-    return res1, 0
+    return get_result(m, s, e, 2), get_result(m, s, e, 20)
